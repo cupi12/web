@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>하이</title>
+<script>
+	//json
+	var emp = {
+		id : 100,
+		first_name : "홍길동",
+		dept : [ "인사", "개발자" ]
+	};
+	var list = [ {
+		id : 100,
+		first_name : "홍길동",
+		dept : "인사"
+	}, {
+		id : 101,
+		first_name : "정혜인",
+		dept : " 사나이"
+	}, {
+		id : 102,
+		first_name : "박규림",
+		dept : " 절세미녀"
+	} ]
+
+	//사원 목록에서 두번째 사원의 이름을 출력
+	console.log(emp.dept[1]);
+	//Object --> Json (String)
+	var str = JSON.stringify(list);
+	console.log(str);
+	var obj = JSON.parse(str);
+	console.log(obj);
+
+	function loadDoc() {
+		var xhttp = new XMLHttpRequest();
+		//3. 서버 응답이 오면 실행될 이벤트 핸들러
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				var movie = JSON.parse(this.responseText);
+				console.log(movie);
+				var showRange = movie.boxOfficeResult.showRange;
+				var movieName = movie.boxOfficeResult.dailyBoxOfficeList[0].movieNm;
+				var list = movie.boxOfficeResult.dailyBoxOfficeList;
+				var result = "";
+				for (var i = 0; i < list.length; i++) {
+					result += "<span>" + list[i].movieCd + "</span>"+"---" + (i + 1)
+							+ "위 영화 : " + list[i].movieNm + "<br>";
+					//result += list[i].rank + " " + list[i].movieNm + "<br>";
+				}
+
+				document.getElementById("demo").innerHTML = result;
+
+			}
+		};
+		//1. 연결 준비
+		var url = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=430156241533f1d058c603178cc3ca0e&targetDt=20130606";
+		xhttp.open("GET", url, true);
+		//2. 요청 보냄
+		xhttp.send();
+	}//end of loadDoc
+	
+	function loadInfo(movieCd) {
+		var xhttp = new XMLHttpRequest();
+		//3. 서버 응답이 오면 실행될 이벤트 핸들러
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				var result = JSON.parse(this.responseText);
+				//결과 infoDiv에 출력
+
+				var genreNm= result.movieInfoResult.movieInfo.genres[1].genreNm;
+				var peopleNm = result.movieInfoResult.movieInfo.actors[0].peopleNm;
+				var showTm = result.movieInfoResult.movieInfo.showTm;
+				info.innerHTML = 
+					"장르 : " + genreNm + "<br>" 
+				+ "감독이름 :" + peopleNm +"<br>" 
+				+"상영시간 : " + showTm + "<br>";   
+				
+			}
+		};
+		//1. 연결 준비
+		var url = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json?key=430156241533f1d058c603178cc3ca0e&movieCd=" + movieCd;
+		xhttp.open("GET", url, true);
+		//2. 요청 보냄
+		xhttp.send();
+	}//end of loadInfo
+	
+	window.onload = function() {
+		//박스오피스 조회
+		loadDoc();
+		//span 태그의 클릭 이벤트
+		demo.addEventListener("click", function(e){
+			var movieCd = e.target.innerHTML;
+			loadInfo(movieCd);
+		});
+	}
+</script>
+
+</head>
+<body>
+	영화순위
+	<hr>
+	<div id="demo"></div>
+	<hr>
+	<div id ="info"></div>
+</body>
+</html>
